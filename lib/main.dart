@@ -1,4 +1,9 @@
+import 'dart:async';
+import 'dart:io';
+
 import 'package:flutter/material.dart';
+import 'package:audioplayers/audio_cache.dart';
+import 'package:audioplayers/audioplayers.dart';
 
 void main() => runApp(MyApp());
 
@@ -27,17 +32,31 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _counter = 0;
 
-  void _incrementCounter() {
-    setState(() {
- 
-      _counter++;
-    });
-  }
+  AudioPlayer audioPlayer = new AudioPlayer();
+  AudioCache audioCache = new AudioCache();
+  bool audioplayersPlaying = false;
+  String path;
+  String localFilePath;
+
+
+  // void _playAudioplayers() async {
+  //   int result = await audioPlayer.play('$path' + '/brown_noise.mp3',isLocal: true);
+  // }
+
+  // void _getAppDocDirectory() async {
+  //   final dir = await getApplicationDocumentsDirectory();
+  //   if (await dir.exists()) {
+  //     setState(() {
+  //       path = dir.path;
+  //     });
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
+    // _getAppDocDirectory();
+    audioPlayer.setReleaseMode(ReleaseMode.LOOP);
   
     return Scaffold(
       appBar: AppBar(
@@ -48,21 +67,19 @@ class _MyHomePageState extends State<MyHomePage> {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: <Widget>[
-            Text(
-              'You have pushed the button this many times:',
-            ),
-            Text(
-              '$_counter',
-              style: Theme.of(context).textTheme.display1,
+            Text(path ?? 'path not found'),
+            Container(
+              height: 50,
+              width: 150,
+              color: Colors.teal[300],
+              child: FlatButton(
+                child: Text('audioplayers 0.13.2'),
+                onPressed: () => audioCache.play('brown.mp3'),
+              ),
             ),
           ],
         ),
       ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: _incrementCounter,
-        tooltip: 'Increment',
-        child: Icon(Icons.add),
-      ), 
     );
   }
 }
