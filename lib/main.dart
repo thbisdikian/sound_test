@@ -1,9 +1,8 @@
-import 'dart:async';
-import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:audioplayers/audio_cache.dart';
 import 'package:audioplayers/audioplayers.dart';
+import 'package:flutter/services.dart';
+import 'package:soundpool/soundpool.dart';
 
 void main() => runApp(MyApp());
 
@@ -36,27 +35,30 @@ class _MyHomePageState extends State<MyHomePage> {
   AudioPlayer audioPlayer = new AudioPlayer();
   AudioCache audioCache = new AudioCache();
   bool audioplayersPlaying = false;
-  String path;
-  String localFilePath;
+  Soundpool _soundpool = Soundpool();
+  int _soundId;
+  int _streamId;
 
+  _playSoundpool() async {
+    _streamId = await _soundpool.play(_soundId);
+  }
 
-  // void _playAudioplayers() async {
-  //   int result = await audioPlayer.play('$path' + '/brown_noise.mp3',isLocal: true);
-  // }
+  _loadSoundpool() async {
+    // _soundId = await _soundpool.loadUri('assets/brown.mp3');
+    _soundId = await rootBundle.load("assets/brown.mp3").then((ByteData soundData) {
+      return _soundpool.load(soundData);
+    });
+  }
 
-  // void _getAppDocDirectory() async {
-  //   final dir = await getApplicationDocumentsDirectory();
-  //   if (await dir.exists()) {
-  //     setState(() {
-  //       path = dir.path;
-  //     });
-  //   }
-  // }
+  _pauseSoundpool() {
+
+  }
 
   @override
   Widget build(BuildContext context) {
-    // _getAppDocDirectory();
     audioPlayer.setReleaseMode(ReleaseMode.LOOP);
+
+    _loadSoundpool();
   
     return Scaffold(
       appBar: AppBar(
@@ -64,19 +66,59 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
+        child: Row(
           children: <Widget>[
-            Text(path ?? 'path not found'),
-            Container(
-              height: 50,
-              width: 150,
-              color: Colors.teal[300],
-              child: FlatButton(
-                child: Text('audioplayers 0.13.2'),
-                onPressed: () => audioCache.play('brown.mp3'),
-              ),
+
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text('audioplayers/audiocache'),
+                Container(
+                  height: 50,
+                  width: 150,
+                  color: Colors.teal[300],
+                  child: FlatButton(
+                    child: Text('play'),
+                    onPressed: () => audioCache.play('brown.mp3'),
+                  ),
+                ),
+                Container(
+                  height: 50,
+                  width: 150,
+                  color: Colors.teal[600],
+                  child: FlatButton(
+                    child: Text('pause\n(doesn\'t work)'),
+                    onPressed: () => audioCache.clearCache(),
+                  ),
+                ),
+              ]
             ),
+
+            Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Text('soundpool'),
+                Container(
+                  height: 50,
+                  width: 150,
+                  color: Colors.teal[300],
+                  child: FlatButton(
+                    child: Text('play'),
+                    onPressed: () => _playSoundpool(),
+                  ),
+                ),
+                Container(
+                  height: 50,
+                  width: 150,
+                  color: Colors.teal[600],
+                  child: FlatButton(
+                    child: Text('pause'),
+                    onPressed: () => _soundpool.pause(_streamId),
+                  ),
+                ),
+              ],
+            ),
+
           ],
         ),
       ),
